@@ -1,0 +1,11 @@
+.*
+# !~ : 除外しない
+!.github
+!.gitignore
+!*.env.example
+!.dockerignore
+
+# .DS_Store
+# フォルダやファイルに関するmeta情報を格納．
+# 全てのフォルダに自動的に1つずつ作成される
+.DS_Store
