@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+# nginx
+# frontend
+# frontend-build
+  api:
+    build:
+      context: ./backend
+    command:
+      # https://zenn.dev/hsaki/books/golang-httpserver-internal/viewer/serverstart
+      # -r, --regex=[] : 監視するファイルやディレクトリを正規表現などで指定する
+      # -s, --start-service=false:長時間起動するアプリかどうか．サーバーなど
+      # https://qiita.com/ukinau/items/410f56b6d777ad1e4e90#dash-bash-zsh%E3%81%AE-c%E3%81%AE%E9%81%95%E3%81%84
+      # sh -c : 渡されたコマンドを新しいshellプロセスの実行空間でそのまま実行
+      # https://zenn.dev/keyamin/articles/4dbcce8f214bfe#%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%83%A9%E3%82%A4%E3%83%B3%E5%BC%95%E6%95%B0%E3%82%92%E5%8F%97%E3%81%91%E5%8F%96%E3%82%8B
+      # flagで，コマンドライン引数から値を受け取る
+      reflex -r '\.go$$' -s -- sh -c 'go run main.go -port=8000'
+    container_name: baseapp-api
+    ports:
+      # https://www.engilaboo.com/docker-compose-environment-default/
+      - ${API_PORT:-8000}:8000
+    volumes:
+      - ./backend:/app
+    working_dir: /app
+# swagger-ui
+# db
+# migration
+# adminer?
