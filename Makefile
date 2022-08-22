@@ -20,6 +20,10 @@ up:
 down:
 	docker compose down
 
+.PHONY: logs
+logs:
+	docker compose logs -f
+
 .PHONY: bash/service
 bash/service:
 	docker compose exec $(SERVICE) bin/bash
