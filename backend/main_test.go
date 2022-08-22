@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"testing"
 
@@ -11,6 +12,10 @@ import (
 )
 
 func TestRun(t *testing.T) {
+	l, err := net.Listen("tcp", "localhost:0")
+	if err != nil {
+		t.Fatalf("failed to listen port %v", err)
+	}
 	// https://www.wakuwakubank.com/posts/867-go-context/
 	// WithCancel : 新しいコンテキストとともに，キャンセル関数を取得する
 	// Background : 空のContextを生成
@@ -19,10 +24,13 @@ func TestRun(t *testing.T) {
 	// WithContext returns a new Group and an associated Context derived from ctx. The derived Context is canceled the first time a function passed to Go returns a non-nil error or the first time Wait returns, whichever occurs first.
 	eg, ctx := errgroup.WithContext(ctx)
 	eg.Go(func() error {
-		return run(ctx)
+		return run(ctx, l)
 	})
 	in := "message"
-	rsp, err := http.Get("http://localhost:8000/" + in)
+	url := fmt.Sprintf("http://%s/%s", l.Addr().String(), in)
+	// どんなポート番号でリッスンしているのか確認
+	t.Logf("try request to %q", url)
+	rsp, err := http.Get(url)
 	if err != nil {
 		// https: //simple-minds-think-alike.moritamorie.com/entry/go-testing-error-fatal
 		// t.Errorf : Fail→ 対象の関数のテストに失敗した記録を残すが、後続のテストは実行する
