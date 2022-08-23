@@ -7,6 +7,8 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/hiromi-mitsuoka/baseapp/config"
 	"golang.org/x/sync/errgroup"
@@ -75,14 +77,23 @@ func main() {
 // 「複数ゴールーチン間で安全に、そして簡単に情報伝達を行いたい」という要望は、チャネルによる伝達だけ実現しようとすると難しい
 // → ゴールーチン上で起動される関数の第一引数に、context.Context型を1つ渡す」だけで簡単に実現できるようになっている
 func run(ctx context.Context) error {
+	// グレースフルシャットダウン
+	// 何らかの処理を実行中に終了シグナルを受け付けた場合，アプリケーションプロセスは処理を正しく終了させるまで終了しないことが望ましい．
+	// http.Server型はShutdownメソッドを呼ぶと，グレースフルシャットダウンを開始する
+	// 割り込みシグナル（SIGINT）, 終了シグナル（SIGTERM）
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
 	cfg, err := config.New()
 	if err != nil {
 		return err
 	}
+
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", cfg.Port))
 	if err != nil {
 		log.Fatalf("failed to listen port %d: %v", cfg.Port, err)
 	}
+
 	url := fmt.Sprintf("http://%s", l.Addr().String())
 	log.Printf("start with: %v", url)
 	// net/httpパッケージの，*http.Server型を使用 → サーバーのタイムアウト時間なども設定可能
