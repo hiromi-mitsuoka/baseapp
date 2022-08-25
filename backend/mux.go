@@ -1,6 +1,13 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-playground/validator/v10"
+	"github.com/hiromi-mitsuoka/baseapp/handler"
+	"github.com/hiromi-mitsuoka/baseapp/store"
+)
 
 // https://qiita.com/huji0327/items/c85affaf5b9dbf84c11e
 // muxとは
@@ -13,11 +20,22 @@ import "net/http"
 
 // NOTE: 戻り値を*http.ServeMux型の値ではなく，http.Handlerインターフェースにしておくことで，内部実装に依存しない関数シグネチャになる
 func NewMux() http.Handler {
-	mux := http.NewServeMux()
+	// mux := http.NewServeMux()
+	// NOTE: 標準パッケージhttp.ServeMux型の場合ルーティング設定の表現に乏しいため，
+	//       ルーティングのみの機能を提供する,net/httpパッケージの型定義に準拠するgo-chi/chiパッケージを利用
+	mux := chi.NewRouter()
+
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		// NOTE: 静的解析のエラーを回避するため明示的に戻り値を捨てている
 		_, _ = w.Write([]byte(`{"status": "OK"}`))
 	})
+
+	v := validator.New()
+	at := &handler.AddTask{Store: store.Tasks, Validator: v}
+	mux.Post("/tasks", at.ServeHTTP)
+	lt := &handler.ListTask{Store: store.Tasks}
+	mux.Get("/tasks", lt.ServeHTTP)
+
 	return mux
 }
