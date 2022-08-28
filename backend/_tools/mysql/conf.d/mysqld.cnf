@@ -1,0 +1,11 @@
+# https://www.web-dev-qa-db-ja.com/ja/mysql/mysql%E3%80%81mysqladmin%E3%80%81mysqld%E3%81%AE%E9%81%95%E3%81%84/1045260864/
+# mysqldはserver実行可能ファイル（そのうちの1つ）です
+# mysqlはコマンドライン
+# mysqladminはメンテナンスまたは管理ユーティリティ
+
+[mysqld]
+# https://www.javadrive.jp/mysql/user/index9.html
+# 現在のデフォルトは，caching_sha3_password
+default-authentication-plugin=mysql_native_password
+character_set_server=utf8mb4
+sql_mode=TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY

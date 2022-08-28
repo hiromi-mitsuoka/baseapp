@@ -7,8 +7,18 @@ services:
     build:
       context: ./backend
     environment:
-      TODO_ENV: dev
+      BASEAPP_ENV: dev
       PORT: 8000
+      # https://dev.mysql.com/doc/refman/5.6/ja/connecting.html
+      # MySQLサーバーが稼働しているホストの名前
+      # https://www.itmanage.co.jp/column/host/#:~:text=%E3%83%9B%E3%82%B9%E3%83%88%E3%81%A8%E3%81%AF%E3%80%81%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF,%E6%8C%87%E5%AE%9A%E3%81%99%E3%82%8B%E5%BF%85%E8%A6%81%E3%81%8C%E3%81%82%E3%82%8A%E3%81%BE%E3%81%99%E3%80%82
+      # host: コンピュータネットワークにおける接続されたコンピュータやデバイス（端末、周辺機器（サーバ、パソコン、スマートフォン、ルータ））の総称のこと
+      #       ITネットワークの「ホスト」とは主にサーバサイドのサーバやネットワーク機器などが該当します。対する「ゲスト」はパソコンやスマートフォンなどのクライアントサイドにおけるコンピュータを示します。
+      DB_HOST: baseapp-db
+      DB_PORT: 3306
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_DATABASE: baseapp
     command:
       # https://zenn.dev/hsaki/books/golang-httpserver-internal/viewer/serverstart
       # -r, --regex=[] : 監視するファイルやディレクトリを正規表現などで指定する
@@ -26,6 +36,31 @@ services:
       - ./backend:/app
     working_dir: /app
 # swagger-ui
-# db
+  db:
+    image: mysql:8.0.29
+    # https://qiita.com/toyoyuto618/items/f225e1b2ab22ca5adf33
+    # platform: どのプラットフォーム (OSおよびCPUアーキテクチャの組み合わせ) に対応したイメージを生成するのかを指定
+    # https://gihyo.jp/dev/serial/01/mysql-road-construction-news/0167
+    #           M1Macのプラットフォームはarm64, mysqlイメージのサポートプラットフォームはamd64, M1の場合指定しないとlinux/arm64/v8対応のイメージをpullしようとしてエラーになる．
+    platform: linux/amd64
+    container_name: baseapp-db
+    environment:
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: baseapp
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      # https://www.7key.jp/computer/linux/directory.html
+      # /var/lib: アプリケーションやシステムが持つ、プログラム実行によって変更されたデータや特定のホスト情報に関る情報を置くディレクトリ
+      - db-data:/var/lib/mysql
+      # https://www.7key.jp/computer/linux/directory.html
+      # /etc: プログラムの操作や制御を行う際に必要となる設定ファイルが /etc 階層に配置されます。関連する設定ファイルが多い場合は、/etc 配下にサブディレクトリを作成し、その中に配置する場合もあります。
+      # https://docs.docker.jp/docker-for-mac/osxfs-caching.html#consistentcacheddelegated
+      # cached: ホストの表示が信頼できる（ホスト上の更新がコンテナ上に反映するまで、遅延が発生するのを許容）
+      - $PWD/_tools/mysql/conf.d:/etc/mysql/conf.d:cached
+    ports:
+      - "33306:3306"
 # migration
 # adminer?
+volumes:
+  db-data:
