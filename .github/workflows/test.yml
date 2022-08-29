@@ -1,21 +1,39 @@
-# # https://github.com/k1LoW/octocov
-# # https://github.com/k1LoW/octocov-action
-# on:
-#   push:
-#     branches:
-#       - "main"
-#   pull_request:
-# name: test
-# jobs:
-#   test:
-#     runs-on: ubuntu-latest
-#     steps:
-#     - uses: actions/setup-go@v3
-#       with:
-#         go-version: '>=1.18'
-#     - uses: actions/checkout@v3
-#     # https://blog.takuchalle.dev/post/2020/02/20/github_actions_change_directory/
-#     # &&　で繋ぐ
-#     - run: cd backend/ && go test ./... -coverprofile=coverage.out
-#     - name: report coverage
-#       uses: k1LoW/octocov-action@v0
+# https://github.com/k1LoW/octocov
+# https://github.com/k1LoW/octocov-action
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+name: test
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost"
+          --health-interval 20s
+          --health-timeout 10s
+          --health-retries 10
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: baseapp
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+    steps:
+    - uses: actions/setup-go@v3
+      with:
+        go-version: '>=1.18'
+    - uses: actions/checkout@v3
+    -  run: |
+          go install github.com/k0kubun/sqldef/cmd/mysqldef@latest
+          mysqldef -u user -p password -h 127.0.0.1 -P 3306 baseapp < ../backend/_tools/mysql/schema.sql
+    # https://blog.takuchalle.dev/post/2020/02/20/github_actions_change_directory/
+    # && で繋ぐ
+    - run: cd backend/ && go test ./... -coverprofile=coverage.out
+    - name: report coverage
+      uses: k1LoW/octocov-action@v0
