@@ -6,10 +6,10 @@ coverage:
     - coverage.out
 codeToTestRatio:
   code:
-    - './backend/**/*.go'
-    - './backend/!**/*_test.go'
+    - '**/*.go'
+    - '!**/*_test.go'
   test:
-    - './backend/**/*_test.go'
+    - '**/*_test.go'
 testExecutionTime:
   if: true
 diff:
@@ -23,3 +23,4 @@ report:
     - artifact://${GITHUB_REPOSITORY}
 
 # TODO: backend/配下に置きたいが，ファイルを検知してくれない
+# TODO: 図のフォーマットを整える（項目を追加する）
