@@ -21,3 +21,5 @@ report:
   if: is_default_branch
   datastores:
     - artifact://${GITHUB_REPOSITORY}
+
+# TODO: backend/配下に置きたいが，ファイルを検知してくれない
