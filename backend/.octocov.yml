@@ -1,0 +1,16 @@
+# https://github.com/k1LoW/octocov
+# https://zenn.dev/harachan/scraps/d2b8ec4f22aa09
+# PRにテストカバレッジを図で表示する
+coverage:
+  paths:
+    - coverage.out
+codeToTestRatio:
+  code:
+    - '**/*.go'
+    - '!**/*_test.go'
+  test:
+    - '**/*_test.go'
+testExecutionTime:
+  if: true
+comment:
+  if: is_pull_request
