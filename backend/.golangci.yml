@@ -1,5 +1,8 @@
 linters-settings:
+  # https://developers.wano.co.jp/1883/
+  # NOTE: go vetとは、goのコードを静的解析し、怪しい記法を指摘する標準組み込みのツール = linter
   govet:
+    # https://zenn.dev/uuusu/articles/6554631b4c08ba
     check-shadowing: false
   gocyclo:
     min-complexity: 30

@@ -5,6 +5,9 @@
 !*.env.example
 !.dockerignore
 
+# TODO: backend/配下に置きたいが，ファイルを検知してくれない
+!.octocov.yml
+
 # .DS_Store
 # フォルダやファイルに関するmeta情報を格納．
 # 全てのフォルダに自動的に1つずつ作成される

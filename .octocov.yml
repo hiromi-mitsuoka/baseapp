@@ -1,0 +1,26 @@
+# https://github.com/k1LoW/octocov
+# https://zenn.dev/harachan/scraps/d2b8ec4f22aa09
+# PRにテストカバレッジを図で表示する
+coverage:
+  paths:
+    - coverage.out
+codeToTestRatio:
+  code:
+    - '**/*.go'
+    - '!**/*_test.go'
+  test:
+    - '**/*_test.go'
+testExecutionTime:
+  if: true
+diff:
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}
+comment:
+  if: is_pull_request
+report:
+  if: is_default_branch
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}
+
+# TODO: backend/配下に置きたいが，ファイルを検知してくれない
+# TODO: 図のフォーマットを整える（項目を追加する）
