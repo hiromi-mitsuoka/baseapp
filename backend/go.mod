@@ -11,6 +11,8 @@ require (
 	github.com/caarlos0/env/v6 v6.10.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-playground/validator/v10 v10.11.0
+	github.com/go-sql-driver/mysql v1.6.0
+	github.com/jmoiron/sqlx v1.3.5
 )
 
 require (
