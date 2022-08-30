@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
+	"github.com/hiromi-mitsuoka/baseapp/clock"
+	"github.com/hiromi-mitsuoka/baseapp/config"
 	"github.com/hiromi-mitsuoka/baseapp/handler"
 	"github.com/hiromi-mitsuoka/baseapp/store"
 )
@@ -19,7 +22,7 @@ import (
 // ハンドラ：クリエストに応じた処理をして、レスポンスを返却する
 
 // NOTE: 戻り値を*http.ServeMux型の値ではなく，http.Handlerインターフェースにしておくことで，内部実装に依存しない関数シグネチャになる
-func NewMux() http.Handler {
+func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), error) {
 	// mux := http.NewServeMux()
 	// NOTE: 標準パッケージhttp.ServeMux型の場合ルーティング設定の表現に乏しいため，
 	//       ルーティングのみの機能を提供する,net/httpパッケージの型定義に準拠するgo-chi/chiパッケージを利用
@@ -32,10 +35,18 @@ func NewMux() http.Handler {
 	})
 
 	v := validator.New()
-	at := &handler.AddTask{Store: store.Tasks, Validator: v}
+
+	// RDBMS
+	db, cleanup, err := store.New(ctx, cfg)
+	if err != nil {
+		return nil, cleanup, err
+	}
+	r := store.Repository{Clocker: clock.RealClocker{}}
+
+	at := &handler.AddTask{DB: db, Repo: &r, Validator: v}
 	mux.Post("/tasks", at.ServeHTTP)
-	lt := &handler.ListTask{Store: store.Tasks}
+	lt := &handler.ListTask{DB: db, Repo: &r}
 	mux.Get("/tasks", lt.ServeHTTP)
 
-	return mux
+	return mux, cleanup, nil
 }

@@ -136,7 +136,12 @@ func run(ctx context.Context) error {
 	// // すべての goroutine が終わるのを待って、エラーが発生していれば（最初の）エラーを返す
 	// return eg.Wait()
 
-	mux := NewMux()
+	// mux := NewMux()
+	mux, cleanup, err := NewMux(ctx, cfg)
+	if err != nil {
+		return err
+	}
+	defer cleanup()
 	s := NewServer(l, mux)
 	return s.Run(ctx)
 }
