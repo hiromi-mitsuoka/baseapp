@@ -23,7 +23,7 @@ func OpenDBForTest(t *testing.T) *sqlx.DB {
 	}
 	db, err := sql.Open(
 		"mysql",
-		fmt.Sprintf("user:password@tcp(127.0.0.1:%d)/todo?parseTime=true", port),
+		fmt.Sprintf("user:password@tcp(127.0.0.1:%d)/baseapp?parseTime=true", port),
 	)
 	if err != nil {
 		// https://simple-minds-think-alike.moritamorie.com/entry/go-testing-error-fatal
