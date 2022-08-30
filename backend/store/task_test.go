@@ -4,10 +4,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/google/go-cmp/cmp"
 	"github.com/hiromi-mitsuoka/baseapp/clock"
 	"github.com/hiromi-mitsuoka/baseapp/entity"
 	"github.com/hiromi-mitsuoka/baseapp/testutil"
+	"github.com/jmoiron/sqlx"
 )
 
 // テストヘルパー関数
@@ -67,7 +69,43 @@ func prepareTasks(ctx context.Context, t *testing.T, con Execer) entity.Tasks {
 	return wants
 }
 
-// NOTE: RDBMSを使ったテスト
+// NOTE: モックを利用したテスト
+func TestRepository_AddTask(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	c := clock.FixedClocker{}
+	var wantID int64 = 20
+	okTask := &entity.Task{
+		Title:    "ok task",
+		Status:   "todo",
+		Created:  c.Now(),
+		Modified: c.Now(),
+	}
+
+	// github.com/DATA-DOG/go-sqlmock
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = db.Close() })
+
+	mock.ExpectExec(
+		// NOTE: エスケープが必要
+		`INSERT INTO task \(title, status, created, modified\) VALUES \(\?, \?, \?, \?\)`,
+	).WithArgs(okTask.Title, okTask.Status, c.Now(), c.Now()).
+		WillReturnResult(sqlmock.NewResult(wantID, 1))
+
+	// NOTE: mock作成時に初期化したdbを引数にして，xdbを初期化
+	xdb := sqlx.NewDb(db, "mysql")
+	r := &Repository{Clocker: c}
+	// TODO: mock利用したdbを使って初期化したxdbを利用しているから，RDBMSは用いていない？？
+	if err := r.AddTask(ctx, xdb, okTask); err != nil {
+		t.Errorf("want no error, but got %v", err)
+	}
+}
+
+// NOTE: RDBMSを利用したテスト
 func TestRepository_ListTasks(t *testing.T) {
 	ctx := context.Background()
 	// entity.Taskを作成する他のテストケースと混ざるとテスト結果が異なりフェイルする
