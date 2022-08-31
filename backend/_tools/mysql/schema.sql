@@ -21,6 +21,7 @@ CREATE TABLE `users`
   -- 絵文字などを使用したい場合は，utf8mb4の指定が必要
 ) Engine=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='ユーザー';
 
+-- TODO: tasksに変更する
 CREATE TABLE `task`
 (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'タスクの識別子',
