@@ -34,6 +34,9 @@ func TestKVS_Load(t *testing.T) {
 	cli := testutil.OpenRedisTest(t)
 	sut := &KVS{Cli: cli}
 
+	// NOTE: 2つのテストケースの実行後の検証方法が異なるため，テーブル駆動テストではなく，t.Runメソッドを利用したサブテストで実装
+	// https://qiita.com/marnie_ms4/items/d5233045a084cebeea14
+	// サブテスト: テストに階層を作ることが可能．Runメソッドを使ってテスト内に小さなテストを記述
 	t.Run("ok", func(t *testing.T) {
 		t.Parallel()
 
