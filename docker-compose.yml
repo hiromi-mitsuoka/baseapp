@@ -19,6 +19,8 @@ services:
       DB_USER: user
       DB_PASSWORD: password
       DB_DATABASE: baseapp
+      REDIS_HOST: baseapp-redis
+      REDIS_PORT: 6379
     command:
       # https://zenn.dev/hsaki/books/golang-httpserver-internal/viewer/serverstart
       # -r, --regex=[] : 監視するファイルやディレクトリを正規表現などで指定する
@@ -60,7 +62,15 @@ services:
       - $PWD/_tools/mysql/conf.d:/etc/mysql/conf.d:cached
     ports:
       - "33306:3306"
+  redis:
+    image: redis:7.0.4
+    container_name: baseapp-redis
+    ports:
+      - "36379:6379"
+    volumes:
+      - redis-data:/data
 # migration
 # adminer?
 volumes:
   db-data:
+  redis-data:

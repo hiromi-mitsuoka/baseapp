@@ -24,6 +24,15 @@ jobs:
           MYSQL_DATABASE: baseapp
           MYSQL_USER: user
           MYSQL_PASSWORD: password
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
     steps:
     - uses: actions/setup-go@v3
       with:

@@ -13,14 +13,14 @@ import (
 func TestNewMux(t *testing.T) {
 	// NOTE: NewMux関数の引数，ctx, cfg の適切な生成が不明なため，一時的にスキップしてテストを通るようにしている
 	// https://qiita.com/taizo/items/82930518430f940721a0#tskip
-	t.Skip()
+	// t.Skip()
 
 	// NOTE: httptestパッケージを使って，ServeHTTP関数の引数に渡すためのモックを生成
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, "/health", nil)
 	// TODO: NewMux関数をパスするために，ctx, cfgを作成したが，利用の仕方が正しいか不明な状態
 	//       cfgのエラーチェックをmux_test.goで行っていることは違う気がする
-	ctx, _ := context.WithCancel(context.Background())
+	ctx := context.Background()
 	cfg, err := config.New()
 	if err != nil {
 		t.Error(err)
