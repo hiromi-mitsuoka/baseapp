@@ -20,6 +20,9 @@ openssl genrsa 4096 > secret.pem
 openssl rsa -pubout < secret.pem > public.pem
 ```
 
+### 作成したトークン文字列を解析
+- https://jwt.io/
+
 
 参考記事
 - [JSON Web Token（JWT）の紹介とYahoo! JAPANにおけるJWTの活用](https://techblog.yahoo.co.jp/advent-calendar-2017/jwt/)

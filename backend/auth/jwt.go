@@ -10,7 +10,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/hiromi-mitsuoka/baseapp/clock"
 	"github.com/hiromi-mitsuoka/baseapp/entity"
-	"github.com/lestrrat-go/jwx/jwa"
+
+	// NOTE: "github.com/lestrrat-go/jwx/jwa"の場合，下記エラーでた
+	// {"message": "failed to generate JWT: failed to serialize token at step #2: jws.Sign: expected algorithm to be of type jwa.SignatureAlgorithm but got (\"RS256\", jwa.SignatureAlgorithm)"}
+	"github.com/lestrrat-go/jwx/v2/jwa"
 	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v2/jwt"
 )
