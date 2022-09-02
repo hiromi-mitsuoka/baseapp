@@ -35,59 +35,43 @@ func prepareUser(ctx context.Context, t *testing.T, db Execer) entity.UserID {
 
 func prepareTasks(ctx context.Context, t *testing.T, con Execer) (entity.UserID, entity.Tasks) {
 	t.Helper()
-
-	// 一度綺麗にする
-	if _, err := con.ExecContext(ctx, "DELETE FROM tasks;"); err != nil {
-		t.Logf("failed to initialize tasks: %v", err)
-	}
-
 	userID := prepareUser(ctx, t, con)
 	otherUserID := prepareUser(ctx, t, con)
 	c := clock.FixedClocker{}
 	wants := entity.Tasks{
 		{
-			UserID:   userID,
-			Title:    "want task 1",
-			Status:   "todo",
-			Created:  c.Now(),
-			Modified: c.Now(),
+			UserID: userID,
+			Title:  "want task 1", Status: "todo",
+			Created: c.Now(), Modified: c.Now(),
 		},
 		{
-			UserID:   userID,
-			Title:    "want task 2",
-			Status:   "done",
-			Created:  c.Now(),
-			Modified: c.Now(),
+			UserID: userID,
+			Title:  "want task 2", Status: "done",
+			Created: c.Now(), Modified: c.Now(),
 		},
 	}
 	tasks := entity.Tasks{
 		wants[0],
 		{
-			UserID:   otherUserID,
-			Title:    "not want task",
-			Status:   "todo",
-			Created:  c.Now(),
-			Modified: c.Now(),
+			UserID: otherUserID,
+			Title:  "not want task", Status: "todo",
+			Created: c.Now(), Modified: c.Now(),
 		},
 		wants[1],
 	}
-
-	result, err := con.ExecContext(
-		ctx,
-		`INSERT INTO tasks
-			(user_id, title, status, created, modified)
-		VALUES
-			(?, ?, ?, ? ,?),
-			(?, ?, ?, ? ,?),
-			(?, ?, ?, ? ,?);`,
-		wants[0].UserID, wants[0].Title, wants[0].Status, wants[0].Created, wants[0].Modified,
-		wants[0].UserID, wants[1].Title, wants[1].Status, wants[1].Created, wants[1].Modified,
-		wants[0].UserID, wants[2].Title, wants[2].Status, wants[2].Created, wants[2].Modified,
+	result, err := con.ExecContext(ctx,
+		`INSERT INTO tasks (user_id, title, status, created, modified)
+			VALUES
+			    (?, ?, ?, ?, ?),
+			    (?, ?, ?, ?, ?),
+			    (?, ?, ?, ?, ?);`,
+		tasks[0].UserID, tasks[0].Title, tasks[0].Status, tasks[0].Created, tasks[0].Modified,
+		tasks[1].UserID, tasks[1].Title, tasks[1].Status, tasks[1].Created, tasks[1].Modified,
+		tasks[2].UserID, tasks[2].Title, tasks[2].Status, tasks[2].Created, tasks[2].Modified,
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	// NOTE: 複数INSERTの場合，LstInsertIdで取得するのは最初のレコードID
 	id, err := result.LastInsertId()
 	if err != nil {
 		t.Fatal(err)
@@ -106,6 +90,7 @@ func TestRepository_AddTask(t *testing.T) {
 	c := clock.FixedClocker{}
 	var wantID int64 = 20
 	okTask := &entity.Task{
+		UserID:   33,
 		Title:    "ok task",
 		Status:   "todo",
 		Created:  c.Now(),
@@ -121,8 +106,8 @@ func TestRepository_AddTask(t *testing.T) {
 
 	mock.ExpectExec(
 		// NOTE: エスケープが必要
-		`INSERT INTO tasks \(title, status, created, modified\) VALUES \(\?, \?, \?, \?\)`,
-	).WithArgs(okTask.Title, okTask.Status, c.Now(), c.Now()).
+		`INSERT INTO tasks \(user_id, title, status, created, modified\) VALUES \(\?, \?, \?, \?, \?\)`,
+	).WithArgs(okTask.UserID, okTask.Title, okTask.Status, c.Now(), c.Now()).
 		WillReturnResult(sqlmock.NewResult(wantID, 1))
 
 	// NOTE: mock作成時に初期化したdbを引数にして，xdbを初期化
@@ -136,6 +121,8 @@ func TestRepository_AddTask(t *testing.T) {
 
 // NOTE: RDBMSを利用したテスト
 func TestRepository_ListTasks(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	// entity.Taskを作成する他のテストケースと混ざるとテスト結果が異なりフェイルする
 	// そのため，トランザクションを貼ることで，このテストケースの中だけのテーブル状態にする
