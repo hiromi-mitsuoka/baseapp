@@ -19,7 +19,7 @@ func prepareUser(ctx context.Context, t *testing.T, db Execer) entity.UserID {
 	u := fixture.User(nil)
 	result, err := db.ExecContext(
 		ctx,
-		`INSERT INTO user (name, password, role, created, modified)
+		`INSERT INTO users (name, password, role, created, modified)
 		 VALUES (?, ?, ?, ?, ?);`,
 		u.Name, u.Password, u.Role, u.Created, u.Modified,
 	)
@@ -121,7 +121,7 @@ func TestRepository_AddTask(t *testing.T) {
 
 	mock.ExpectExec(
 		// NOTE: エスケープが必要
-		`INSERT INTO task \(title, status, created, modified\) VALUES \(\?, \?, \?, \?\)`,
+		`INSERT INTO tasks \(title, status, created, modified\) VALUES \(\?, \?, \?, \?\)`,
 	).WithArgs(okTask.Title, okTask.Status, c.Now(), c.Now()).
 		WillReturnResult(sqlmock.NewResult(wantID, 1))
 
