@@ -1,4 +1,7 @@
 coverage.out
 
+# JWT
+auth/cert/*
+
 !.golangci.yml
 !.octocov.yml
