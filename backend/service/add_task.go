@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hiromi-mitsuoka/baseapp/auth"
 	"github.com/hiromi-mitsuoka/baseapp/entity"
 	"github.com/hiromi-mitsuoka/baseapp/store"
 )
@@ -22,7 +23,13 @@ type AddTask struct {
 }
 
 func (a *AddTask) AddTask(ctx context.Context, title string) (*entity.Task, error) {
+	// NOTE: ユーザーID取得．HTTPハンドラーの実装で，context.Context型の値から取得可能
+	id, ok := auth.GetUserID(ctx)
+	if !ok {
+		return nil, fmt.Errorf("user_id not found")
+	}
 	t := &entity.Task{
+		UserID: id,
 		Title:  title,
 		Status: entity.TaskStatusTodo,
 	}

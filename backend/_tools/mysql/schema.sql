@@ -21,13 +21,18 @@ CREATE TABLE `users`
   -- 絵文字などを使用したい場合は，utf8mb4の指定が必要
 ) Engine=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='ユーザー';
 
--- TODO: tasksに変更する
-CREATE TABLE `task`
+CREATE TABLE `tasks`
 (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'タスクの識別子',
+  `user_id` BIGINT UNSIGNED NOT NULL COMMENT 'タスクを作成したユーザーの識別子 ',
   `title` VARCHAR(128) NOT NULL COMMENT 'タスクのタイトル',
   `status` VARCHAR(20) NOT NULL COMMENT 'タスクの状態',
   `created` DATETIME(6) NOT NULL COMMENT 'レコード作成日時',
   `modified` DATETIME(6) NOT NULL COMMENT 'レコード修正日時',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_user_id`
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+      -- https://qiita.com/suin/items/21fe6c5a78c1505b19cb
+      -- RESTRICT: update, delete どちらもエラーになる
+      ON DELETE RESTRICT ON UPDATE RESTRICT
 ) Engine=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='タスク';

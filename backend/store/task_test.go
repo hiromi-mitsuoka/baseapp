@@ -9,51 +9,80 @@ import (
 	"github.com/hiromi-mitsuoka/baseapp/clock"
 	"github.com/hiromi-mitsuoka/baseapp/entity"
 	"github.com/hiromi-mitsuoka/baseapp/testutil"
+	"github.com/hiromi-mitsuoka/baseapp/testutil/fixture"
 	"github.com/jmoiron/sqlx"
 )
 
 // テストヘルパー関数
-func prepareTasks(ctx context.Context, t *testing.T, con Execer) entity.Tasks {
+func prepareUser(ctx context.Context, t *testing.T, db Execer) entity.UserID {
+	t.Helper()
+	u := fixture.User(nil)
+	result, err := db.ExecContext(
+		ctx,
+		`INSERT INTO user (name, password, role, created, modified)
+		 VALUES (?, ?, ?, ?, ?);`,
+		u.Name, u.Password, u.Role, u.Created, u.Modified,
+	)
+	if err != nil {
+		t.Fatalf("insert user: %v", err)
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		t.Fatalf("got user_id: %v", err)
+	}
+	return entity.UserID(id)
+}
+
+func prepareTasks(ctx context.Context, t *testing.T, con Execer) (entity.UserID, entity.Tasks) {
 	t.Helper()
 
 	// 一度綺麗にする
-	if _, err := con.ExecContext(ctx, "DELETE FROM task;"); err != nil {
-		t.Logf("failed to initialize task: %v", err)
+	if _, err := con.ExecContext(ctx, "DELETE FROM tasks;"); err != nil {
+		t.Logf("failed to initialize tasks: %v", err)
 	}
 
+	userID := prepareUser(ctx, t, con)
+	otherUserID := prepareUser(ctx, t, con)
 	c := clock.FixedClocker{}
 	wants := entity.Tasks{
 		{
+			UserID:   userID,
 			Title:    "want task 1",
 			Status:   "todo",
 			Created:  c.Now(),
 			Modified: c.Now(),
 		},
 		{
+			UserID:   userID,
 			Title:    "want task 2",
-			Status:   "todo",
-			Created:  c.Now(),
-			Modified: c.Now(),
-		},
-		{
-			Title:    "want task 3",
 			Status:   "done",
 			Created:  c.Now(),
 			Modified: c.Now(),
 		},
 	}
+	tasks := entity.Tasks{
+		wants[0],
+		{
+			UserID:   otherUserID,
+			Title:    "not want task",
+			Status:   "todo",
+			Created:  c.Now(),
+			Modified: c.Now(),
+		},
+		wants[1],
+	}
 
 	result, err := con.ExecContext(
 		ctx,
-		`INSERT INTO task
-			(title, status, created, modified)
+		`INSERT INTO tasks
+			(user_id, title, status, created, modified)
 		VALUES
-			(?, ?, ? ,?),
-			(?, ?, ? ,?),
-			(?, ?, ? ,?);`,
-		wants[0].Title, wants[0].Status, wants[0].Created, wants[0].Modified,
-		wants[1].Title, wants[1].Status, wants[1].Created, wants[1].Modified,
-		wants[2].Title, wants[2].Status, wants[2].Created, wants[2].Modified,
+			(?, ?, ?, ? ,?),
+			(?, ?, ?, ? ,?),
+			(?, ?, ?, ? ,?);`,
+		wants[0].UserID, wants[0].Title, wants[0].Status, wants[0].Created, wants[0].Modified,
+		wants[0].UserID, wants[1].Title, wants[1].Status, wants[1].Created, wants[1].Modified,
+		wants[0].UserID, wants[2].Title, wants[2].Status, wants[2].Created, wants[2].Modified,
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -63,10 +92,10 @@ func prepareTasks(ctx context.Context, t *testing.T, con Execer) entity.Tasks {
 	if err != nil {
 		t.Fatal(err)
 	}
-	wants[0].ID = entity.TaskID(id)
-	wants[1].ID = entity.TaskID(id + 1)
-	wants[2].ID = entity.TaskID(id + 2)
-	return wants
+	tasks[0].ID = entity.TaskID(id)
+	tasks[1].ID = entity.TaskID(id + 1)
+	tasks[2].ID = entity.TaskID(id + 2)
+	return userID, wants
 }
 
 // NOTE: モックを利用したテスト
@@ -117,10 +146,10 @@ func TestRepository_ListTasks(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	wants := prepareTasks(ctx, t, tx)
+	wantUserID, wants := prepareTasks(ctx, t, tx)
 
 	sut := &Repository{}
-	gots, err := sut.ListTasks(ctx, tx)
+	gots, err := sut.ListTasks(ctx, tx, wantUserID)
 	if err != nil {
 		t.Fatalf("unexected error: %v", err)
 	}

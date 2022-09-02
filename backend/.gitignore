@@ -1,7 +1,8 @@
 coverage.out
 
 # JWT
-auth/cert/*
+# TODO: 本来はignoreしたいが，test時に，go:embedできずにエラーになる
+# auth/cert/*
 
 !.golangci.yml
 !.octocov.yml

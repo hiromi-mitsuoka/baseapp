@@ -58,6 +58,13 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 		return nil, cleanup, err
 	}
 
+	// /register
+	ru := &handler.RegisterUser{
+		Service:   &service.RegisterUser{DB: db, Repo: &r},
+		Validator: v,
+	}
+	mux.Post("/register", ru.ServeHTTP)
+
 	// /login
 	l := &handler.Login{
 		Service: &service.Login{
@@ -74,18 +81,25 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 		Service:   &service.AddTask{DB: db, Repo: &r},
 		Validator: v,
 	}
-	mux.Post("/tasks", at.ServeHTTP)
 	lt := &handler.ListTask{
 		Service: &service.ListTask{DB: db, Repo: &r},
 	}
-	mux.Get("/tasks", lt.ServeHTTP)
+	// ログインユーザーのみ認可するため，サブルーター作成
+	mux.Route("/tasks", func(r chi.Router) {
+		// chi.Router.Use: サブルーターのエンドポイント全体にミドルウェアを適用
+		r.Use(handler.AuthMiddleware(jwter))
+		r.Post("/", at.ServeHTTP)
+		r.Get("/", lt.ServeHTTP)
+	})
 
-	// /register
-	ru := &handler.RegisterUser{
-		Service:   &service.RegisterUser{DB: db, Repo: &r},
-		Validator: v,
-	}
-	mux.Post("/register", ru.ServeHTTP)
+	mux.Route("/admin", func(r chi.Router) {
+		// NOTE: ミドルウェアの適用順序注意
+		r.Use(handler.AuthMiddleware(jwter), handler.AdminMiddleware)
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			_, _ = w.Write([]byte(`{"message": "admin only"}`))
+		})
+	})
 
 	return mux, cleanup, nil
 }
