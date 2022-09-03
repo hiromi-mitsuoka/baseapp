@@ -85,9 +85,13 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 		Service: &service.ListTask{DB: db, Repo: &r},
 	}
 	ut := &handler.UpdateTask{
-		// Service:   &service.UpdateTask{DB: db, Repo: &r},
+		Service:   &service.UpdateTask{DB: db, Repo: &r},
 		Validator: v,
 	}
+	// dt := &handler.DeleteTask{
+	// 	Service:   &service.UpdateTask{DB: db, Repo: &r},
+	// 	Validator: v,
+	// }
 	// ログインユーザーのみ認可するため，サブルーター作成
 	mux.Route("/tasks", func(r chi.Router) {
 		// chi.Router.Use: サブルーターのエンドポイント全体にミドルウェアを適用
@@ -98,6 +102,7 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 		r.Route("/{taskID}", func(r chi.Router) {
 			r.Use(handler.TaskCtx)
 			r.Put("/", ut.ServeHTTP)
+			// r.Delete("/", dt.ServeHTTP)
 		})
 	})
 

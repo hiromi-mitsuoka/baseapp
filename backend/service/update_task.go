@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/hiromi-mitsuoka/baseapp/auth"
 	"github.com/hiromi-mitsuoka/baseapp/entity"
@@ -16,8 +15,7 @@ type UpdateTask struct {
 }
 
 // まずはtitleの変更のみ
-func (u *UpdateTask) UpdateTask(ctx context.Context, title string, tid int64) (*entity.Task, error) {
-	log.Printf("====== Service UpdateTask =======")
+func (u *UpdateTask) UpdateTask(ctx context.Context, tid int64, title string) (*entity.Task, error) {
 	uid, ok := auth.GetUserID(ctx)
 	if !ok {
 		return nil, fmt.Errorf("user_id not found")

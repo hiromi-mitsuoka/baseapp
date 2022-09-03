@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -19,8 +18,6 @@ func (ut *UpdateTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	// TODO: 上手にentity.TaskIDにキャストできない
 	tid_key := ctx.Value(taskIDKey{}).(string)
-	log.Printf("====== tid_key =======", tid_key)
-	log.Printf(tid_key)
 	// TODO: SQLインジェクション対策になっている？
 	tid, err := strconv.ParseInt(tid_key, 10, 64)
 	if err != nil {
@@ -29,9 +26,6 @@ func (ut *UpdateTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}, http.StatusInternalServerError)
 		return
 	}
-
-	log.Printf("====== tid =======", tid)
-	log.Printf("%T\n", tid)
 
 	var b struct {
 		Title string `json:"title" validate:"required"`
@@ -49,14 +43,11 @@ func (ut *UpdateTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("====== Before UpdateTask =======")
 	t, err := ut.Service.UpdateTask(ctx, tid, b.Title)
-	log.Printf("====== After UpdateTask =======")
 	if err != nil {
 		RespondJSON(ctx, w, &ErrResponse{
 			Message: err.Error(),
 		}, http.StatusInternalServerError)
-		log.Printf("====== Error!!!!!!!!!!!")
 		return
 	}
 	// TODO: Update時の適切な返し方確認
