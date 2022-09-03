@@ -84,12 +84,21 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	lt := &handler.ListTask{
 		Service: &service.ListTask{DB: db, Repo: &r},
 	}
+	ut := &handler.UpdateTask{
+		// Service:   &service.UpdateTask{DB: db, Repo: &r},
+		Validator: v,
+	}
 	// ログインユーザーのみ認可するため，サブルーター作成
 	mux.Route("/tasks", func(r chi.Router) {
 		// chi.Router.Use: サブルーターのエンドポイント全体にミドルウェアを適用
 		r.Use(handler.AuthMiddleware(jwter))
 		r.Post("/", at.ServeHTTP)
 		r.Get("/", lt.ServeHTTP)
+		// https://github.com/go-chi/chi#examples
+		r.Route("/{taskID}", func(r chi.Router) {
+			r.Use(handler.TaskCtx)
+			r.Put("/", ut.ServeHTTP)
+		})
 	})
 
 	mux.Route("/admin", func(r chi.Router) {

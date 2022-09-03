@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"context"
+	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/hiromi-mitsuoka/baseapp/auth"
 )
 
@@ -38,5 +41,22 @@ func AdminMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		next.ServeHTTP(w, r)
+	})
+}
+
+type taskIDKey struct{}
+
+// https://github.com/go-chi/chi#examples
+// NOTE: taskIDをmiddlewareで取得
+func TaskCtx(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tid := chi.URLParam(r, "taskID")
+		ctx := context.WithValue(r.Context(), taskIDKey{}, tid)
+		req := r.Clone(ctx)
+
+		log.Printf("====== TaskCtx Middleware =======")
+		// log.Printf("ctx: %v", ctx)
+		// ctx: context.Background.WithValue(type *http.contextKey, val <not Stringer>).WithValue(type *http.contextKey, val 172.29.0.4:8000).WithCancel.WithCancel.WithValue(type *chi.contextKey, val <not Stringer>).WithValue(type auth.userIDKey, val <not Stringer>).WithValue(type auth.roleKey, val admin).WithValue(type string, val 1)
+		next.ServeHTTP(w, req)
 	})
 }
