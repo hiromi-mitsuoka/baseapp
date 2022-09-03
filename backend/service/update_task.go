@@ -14,14 +14,17 @@ type UpdateTask struct {
 	Repo TaskUpdater
 }
 
-// まずはtitleの変更のみ
-func (u *UpdateTask) UpdateTask(ctx context.Context, tid int64, title string) (*entity.Task, error) {
+func (u *UpdateTask) UpdateTask(ctx context.Context, tid int64, title string, status entity.TaskStatus) (*entity.Task, error) {
 	uid, ok := auth.GetUserID(ctx)
 	if !ok {
 		return nil, fmt.Errorf("user_id not found")
 	}
+	if status != "todo" && status != "doing" && status != "done" {
+		return nil, fmt.Errorf("Inappropriate task status")
+	}
 	t := &entity.Task{
-		Title: title,
+		Title:  title,
+		Status: status,
 	}
 	err := u.Repo.UpdateTask(ctx, u.DB, t, tid, uid)
 	if err != nil {

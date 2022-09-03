@@ -28,7 +28,8 @@ func (ut *UpdateTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var b struct {
-		Title string `json:"title" validate:"required"`
+		Title  string            `json:"title"`
+		Status entity.TaskStatus `json:"status"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&b); err != nil {
 		RespondJSON(ctx, w, &ErrResponse{
@@ -43,7 +44,7 @@ func (ut *UpdateTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := ut.Service.UpdateTask(ctx, tid, b.Title)
+	t, err := ut.Service.UpdateTask(ctx, tid, b.Title, b.Status)
 	if err != nil {
 		RespondJSON(ctx, w, &ErrResponse{
 			Message: err.Error(),

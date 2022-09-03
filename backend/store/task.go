@@ -57,15 +57,16 @@ func (r *Repository) UpdateTask(
 	ctx context.Context, db Execer, t *entity.Task, tid int64, uid entity.UserID,
 ) error {
 	t.Modified = r.Clocker.Now()
-	// TODO: 複数カラムの変更に対応する
 	sql := `UPDATE tasks
 					SET title = ?,
+							status = ?,
 					    modified = ?
 					WHERE id = ? and user_id = ?;`
 	_, err := db.ExecContext(
 		ctx,
 		sql,
 		t.Title,
+		t.Status,
 		t.Modified,
 		tid,
 		uid,

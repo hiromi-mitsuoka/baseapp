@@ -25,7 +25,7 @@ type AddTaskService interface {
 }
 
 type UpdateTaskService interface {
-	UpdateTask(ctx context.Context, tid int64, title string) (*entity.Task, error)
+	UpdateTask(ctx context.Context, tid int64, title string, status entity.TaskStatus) (*entity.Task, error)
 }
 
 type RegisterUserService interface {
