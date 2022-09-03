@@ -1,6 +1,10 @@
 package entity
 
-import "time"
+import (
+	"context"
+	"strconv"
+	"time"
+)
 
 // NOTE: 独自の型を挟むことで，謝った代入を防ぐ
 type TaskID int64
@@ -23,3 +27,14 @@ type Task struct {
 }
 
 type Tasks []*Task
+
+type TaskIDKey struct{}
+
+// TODO: 共通処理を記述すべきファイルはどこ？確認?
+func GetTaskID(ctx context.Context) (int64, error) {
+	// TODO: 上手にentity.TaskIDにキャストできない
+	tid_key := ctx.Value(TaskIDKey{}).(string)
+	// TODO: SQLインジェクション対策になっている？
+	tid, err := strconv.ParseInt(tid_key, 10, 64)
+	return tid, err
+}

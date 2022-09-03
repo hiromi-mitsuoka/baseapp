@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/hiromi-mitsuoka/baseapp/entity"
@@ -16,10 +15,7 @@ type UpdateTask struct {
 
 func (ut *UpdateTask) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	// TODO: 上手にentity.TaskIDにキャストできない
-	tid_key := ctx.Value(taskIDKey{}).(string)
-	// TODO: SQLインジェクション対策になっている？
-	tid, err := strconv.ParseInt(tid_key, 10, 64)
+	tid, err := entity.GetTaskID(ctx)
 	if err != nil {
 		RespondJSON(ctx, w, &ErrResponse{
 			Message: err.Error(),

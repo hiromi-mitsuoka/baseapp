@@ -77,3 +77,20 @@ func (r *Repository) UpdateTask(
 	t.ID = entity.TaskID(tid)
 	return nil
 }
+
+func (r *Repository) DeleteTask(
+	ctx context.Context, db Execer, tid int64, uid entity.UserID,
+) error {
+	sql := `DELETE FROM tasks WHERE id = ? and user_id = ?;`
+	_, err := db.ExecContext(
+		ctx,
+		sql,
+		tid,
+		uid,
+	)
+	if err != nil {
+		// TODO: 存在しないレコードを削除しようとした時はnilで返ってくるため，status_code=204で返してしまっている．分岐したい
+		return err
+	}
+	return nil
+}

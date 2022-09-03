@@ -8,6 +8,8 @@
 | POST | /login | 登録済みユーザー情報でアクセストークンを取得 | No |
 | POST | /tasks | タスク登録 | Yes |
 | GET | /tasks | トークンに紐づくユーザーのタスク取得 | Yes |
+| PUT | /tasks/{taskID} | トークンに紐づくユーザーのタスク更新 | Yes |
+| DELETE | /tasks/{taskID} | トークンに紐づくユーザーのタスク削除 | Yes |
 |  |  |  |  |
 | GET | /admin | 管理者ユーザーのみアクセス | Yes |
 
@@ -50,6 +52,12 @@ curl -XGET -H "Authorization: Bearer $TOKEN" localhost:18000/tasks | jq
 ```terminal
 export TOKEN=eyJh......................
 curl -XPUT -H "Authorization: Bearer $TOKEN" localhost:18000/tasks/1 -d @./handler/testdata/update_task/ok_req.json.golden
+```
+
+### タスクの削除（id=1）
+```terminal
+export TOKEN=eyJh......................
+curl -XDELETE -H "Authorization: Bearer $TOKEN" localhost:18000/tasks/1
 ```
 
 ### 管理者アクセス

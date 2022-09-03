@@ -9,7 +9,7 @@ import (
 
 // NOTE: storeパッケージの直接参照を避けるためのインターフェース
 
-//go:generate go run github.com/matryer/moq -out moq_test.go . TaskAdder TaskLister UserRegister UserRegister UserGetter TokenGenerator
+//go:generate go run github.com/matryer/moq -out moq_test.go . TaskAdder TaskLister TaskUpdater TaskDeleter UserRegister UserRegister UserGetter TokenGenerator
 type TaskAdder interface {
 	AddTask(ctx context.Context, db store.Execer, t *entity.Task) error
 }
@@ -20,6 +20,10 @@ type TaskLister interface {
 
 type TaskUpdater interface {
 	UpdateTask(ctx context.Context, db store.Execer, t *entity.Task, tid int64, uid entity.UserID) error
+}
+
+type TaskDeleter interface {
+	DeleteTask(ctx context.Context, db store.Execer, tid int64, uid entity.UserID) error
 }
 
 type UserRegister interface {
