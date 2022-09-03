@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"log"
 
 	"github.com/hiromi-mitsuoka/baseapp/entity"
 )
@@ -51,4 +52,29 @@ func (r *Repository) ListTasks(
 		return nil, err
 	}
 	return tasks, nil
+}
+
+func (r *Repository) UpdateTask(
+	ctx context.Context, db Execer, t *entity.Task, tid int64, uid entity.UserID,
+) error {
+	log.Printf("====== Repository UpdateTask =======")
+	t.Modified = r.Clocker.Now()
+	// TODO: 複数カラムの変更に対応する
+	sql := `UPDATE tasks
+					SET title = ?,
+					    modified = ?
+					WHERE id = ? and user_id = ?;`
+	_, err := db.ExecContext(
+		ctx,
+		sql,
+		t.Title,
+		t.Modified,
+		tid,
+		uid,
+	)
+	if err != nil {
+		return err
+	}
+	t.ID = entity.TaskID(tid)
+	return nil
 }

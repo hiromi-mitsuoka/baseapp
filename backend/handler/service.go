@@ -15,13 +15,17 @@ import (
 
 // https://qiita.com/yaegashi/items/d1fd9f7d0c75b2bb7446
 // NOTE: ソースコードを自動生成するコマンド
-//go:generate go run github.com/matryer/moq -out moq_test.go . ListTasksService AddTaskService RegisterUserService LoginService
+//go:generate go run github.com/matryer/moq -out moq_test.go . ListTasksService AddTaskService RegisterUserService LoginService UpdateTaskService
 type ListTasksService interface {
 	ListTasks(ctx context.Context) (entity.Tasks, error)
 }
 
 type AddTaskService interface {
 	AddTask(ctx context.Context, title string) (*entity.Task, error)
+}
+
+type UpdateTaskService interface {
+	UpdateTask(ctx context.Context, tid int64, title string) (*entity.Task, error)
 }
 
 type RegisterUserService interface {
@@ -32,4 +36,4 @@ type LoginService interface {
 	Login(ctx context.Context, name, pw string) (string, error)
 }
 
-// TODO: このファイルはなぜservice.go??
+// TODO: このファイルはなぜservice.goという命名??

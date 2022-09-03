@@ -30,7 +30,7 @@ curl -X POST localhost:18000/register -d '{"name": "normal_user", "password": "t
 curl -XPOST localhost:18000/login -d '{"user_name": "admin_user", "password": "test"}'
 
 // {"access_token":"eyJh......................
-// ユーザー毎にaccess_tokenが異なる
+// ユーザー毎・発行毎にaccess_tokenが異なる
 ```
 
 ### タスク登録
@@ -44,6 +44,12 @@ curl -XPOST -H "Authorization: Bearer $TOKEN" localhost:18000/tasks -d @./handle
 ```terminal
 export TOKEN=eyJh......................
 curl -XGET -H "Authorization: Bearer $TOKEN" localhost:18000/tasks | jq
+```
+
+### タスクの編集（id=1）
+```terminal
+export TOKEN=eyJh......................
+curl -XPUT -H "Authorization: Bearer $TOKEN" localhost:18000/tasks/1 -d @./handler/testdata/update_task/ok_req.json.golden
 ```
 
 ### 管理者アクセス
