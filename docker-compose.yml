@@ -1,4 +1,6 @@
-version: "3.8"
+# https://reboooot.net/post/how-to-specify-mem-limit-on-docker/
+# NOTE: esでmem_limitを指定したいため，v3.8→v2.2へ移行した
+version: "2.2"
 services:
 # nginx
 # frontend
@@ -69,8 +71,38 @@ services:
       - "36379:6379"
     volumes:
       - redis-data:/data
+  # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-file
+  es:
+    # TODO: DockerImageを切り分け，analyzerを設定する
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1
+    container_name: baseapp-es
+    ports:
+      # NOTE: curlでの接続は9201, コンテナ間の接続は9200
+      - ${ES_PORT:-9201}:9200
+      - ${ES_PORT:-9301}:9300
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    mem_limit: 1073741824 # in bytes
+    environment:
+      # NOTE: 「single-node」 を指定しないと「bootstrap checks failed. You must address the points described in the following [2] lines before starting Elasticsearch.」エラー
+      #       下記urlの「sudo sysctl -w vm.max_map_count=262144」を試したが，現状設定はできていない
+      # https://hawksnowlog.blogspot.com/2022/05/run-elastic-search8-on-docker.html
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_windows_and_macos_with_docker_desktop
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      # 現状securityを明示的に無効化
+      # % curl http://localhost:9201 → {"error":{"root_cause":[{"type":"security_exception","reason":"missing authentication credentials for REST request [/]","header":{"WWW-Authenticate":["Basic realm=\"security\" charset=\"UTF-8\"","ApiKey"]}}],"type":"security_exception","reason":"missing authentication credentials for REST request [/]","header":{"WWW-Authenticate":["Basic realm=\"security\" charset=\"UTF-8\"","ApiKey"]}},"status":401}%
+      # TODO: ローカルでも何かしらのsecurityを設ける
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
 # migration
 # adminer?
 volumes:
   db-data:
   redis-data:
+  es-data:

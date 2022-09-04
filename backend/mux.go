@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -51,6 +52,15 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	if err != nil {
 		return nil, cleanup, err
 	}
+
+	// Elasticsearch
+	_, res, err := store.NewES(cfg)
+	if err != nil {
+		return nil, cleanup, err
+	}
+	// TODO: res.Body.Close() もmysql同様にcleanupを用意するべきか検討
+	defer res.Body.Close()
+	log.Println(res)
 
 	// JWT
 	jwter, err := auth.NewJWTer(rcli, clocker)
