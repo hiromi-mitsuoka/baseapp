@@ -12,6 +12,8 @@ type Config struct {
 	DBName     string `env:"DB_NAME" envDefault:"baseapp"`
 	RedisHost  string `env:"REDIS_HOST" envDefault:"127.0.0.1"`
 	RedisPort  int    `env:"REDIS_PORT" envDefault:"36379"`
+	ESPort01   int    `env:"ES_PORT01" envDefault:"9200"`
+	ESPort02   int    `env:"ES_PORT02" envDefault:"9300"`
 }
 
 func New() (*Config, error) {

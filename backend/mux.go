@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 	"github.com/hiromi-mitsuoka/baseapp/auth"
@@ -55,25 +54,11 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	}
 
 	// Elasticsearch
-	// TODO: 別ファイルに切り出す
-	escfg := elasticsearch.Config{
-		Addresses: []string{
-			// https://www.elastic.co/guide/en/elasticsearch/client/go-api/current/connecting.html#connecting-without-security
-			// NOTE: Use http for connecting without security enabled
-			// TODO: http://localhost:9200で接続したい．現状「docker network inspect baseapp_default」or 「curl http://localhost:9201/_nodes/http\?pretty\=true」でIPアドレスを確認している
-			"http://172.29.0.5:9200",
-			"http://172.29.0.5:9300",
-		},
-	}
-	es, err := elasticsearch.NewClient(escfg)
+	_, res, err := store.NewES(cfg)
 	if err != nil {
-		log.Fatalf("Error creating the client: %s", err)
+		return nil, cleanup, err
 	}
-	// TODO: apiコンテナが先に立ち上がってしまうため，リトライ処理かsleepを入れる
-	res, err := es.Info()
-	if err != nil {
-		log.Fatalf("Error getting response: %s", err)
-	}
+	// TODO: res.Body.Close() もmysql同様にcleanupを用意するべきか検討
 	defer res.Body.Close()
 	log.Println(res)
 
