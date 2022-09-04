@@ -40,4 +40,6 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o /backend-api main.go
+# https://yatta47.hateblo.jp/entry/2020/03/18/000000
+# NOTE: 引数に渡したファイルのみがコンパイル対象になるため，関係するファイル全て指定する
+RUN go build -o /backend-api main.go mux.go server.go
