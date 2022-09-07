@@ -54,7 +54,7 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	}
 
 	// Elasticsearch
-	_, res, err := store.NewES(cfg)
+	_, res, err := store.NewES(ctx, cfg)
 	if err != nil {
 		return nil, cleanup, err
 	}

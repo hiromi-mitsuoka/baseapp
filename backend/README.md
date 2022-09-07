@@ -67,5 +67,27 @@ curl -XGET -H "Authorization: Bearer $TOKEN" localhost:18000/admin
 // {"message": "admin only"}
 ```
 
+### ElasticSearch
 
+#### 基本情報取得
+```terminal
+curl -XGET "http://localhost:9201"
+```
 
+#### indexの一覧取得
+```terminal
+curl -XGET "http://localhost:9201/_aliases" | jq
+```
+
+#### indexのドキュメント数を取得
+```terminal
+curl -XGET "http://localhost:9201/_cat/count/<index_name></index_name>"
+```
+
+#### mappingの確認
+```terminal
+curl -XGET "http://localhost:9201/<index-name>/_mapping"
+```
+
+**参考記事**
+[【Elasticsearch】よく使うコマンド一覧](https://qiita.com/mug-cup/items/ba5dd0a14838e83e69ac)
