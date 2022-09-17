@@ -39,7 +39,19 @@ services:
     volumes:
       - ./backend:/app
     working_dir: /app
-# swagger-ui
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: baseapp-swagger-ui
+    depends_on:
+      - api
+    ports:
+      # - "${SWAGGER_PORT:-18001}:8001"
+      - 18080:8080
+    volumes:
+      - ./swagger/:/swagger
+    environment:
+      - SWAGGER_URL=./swagger.yaml
+      - SWAGGER_JSON=/swagger/swagger.yaml
   db:
     image: mysql:8.0.29
     # https://qiita.com/toyoyuto618/items/f225e1b2ab22ca5adf33
@@ -48,6 +60,8 @@ services:
     #           M1Macのプラットフォームはarm64, mysqlイメージのサポートプラットフォームはamd64, M1の場合指定しないとlinux/arm64/v8対応のイメージをpullしようとしてエラーになる．
     platform: linux/amd64
     container_name: baseapp-db
+    depends_on:
+      - api
     environment:
       MYSQL_USER: user
       MYSQL_PASSWORD: password
@@ -67,6 +81,8 @@ services:
   redis:
     image: redis:7.0.4
     container_name: baseapp-redis
+    depends_on:
+      - api
     ports:
       - "36379:6379"
     volumes:
@@ -76,6 +92,8 @@ services:
     # TODO: DockerImageを切り分け，analyzerを設定する
     image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1
     container_name: baseapp-es
+    depends_on:
+      - api
     ports:
       # NOTE: curlでの接続は9201, コンテナ間の接続は9200
       - ${ES_PORT:-9201}:9200

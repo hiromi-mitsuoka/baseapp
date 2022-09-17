@@ -69,6 +69,11 @@ curl -XGET -H "Authorization: Bearer $TOKEN" localhost:18000/admin
 
 ### ElasticSearch
 
+#### docker環境内のesコンテナのport確認
+```terminal
+docker network inspect baseapp_default
+```
+
 #### 基本情報取得
 ```terminal
 curl -XGET "http://localhost:9201"

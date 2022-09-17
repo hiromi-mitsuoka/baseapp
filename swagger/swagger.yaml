@@ -1,0 +1,93 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Baseapp
+host: 'localhost:18000'
+securityDefinitions:
+  Authorization:
+    name: JWT Authorization
+    type: apiKey
+    in: header
+paths:
+  /tasks:
+    get:
+      description: Task list
+      tags:
+        - Task
+      operationId: task-list
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      security: []
+  /register:
+    post:
+      summary: Register user
+      operationId: register-user
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/RegisterUserResponse'
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/RegisterUserRequest'
+      description: Register a user
+      tags:
+        - User
+    parameters: []
+definitions:
+  ListTask:
+    title: ListTask
+    x-stoplight:
+      id: jyl33gfknjit2
+    type: array
+    items:
+      $ref: '#/definitions/Task'
+  Task:
+    title: Task
+    x-stoplight:
+      id: zdybt7f90kgn2
+    type: object
+    properties:
+      id:
+        type: integer
+      user_id:
+        type: integer
+      title:
+        type: string
+      status:
+        type: string
+      created:
+        type: string
+        format: time
+      modified:
+        type: string
+        format: date
+  RegisterUserRequest:
+    title: RegisterUserRequest
+    x-stoplight:
+      id: 40jey858i3d8o
+    type: object
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+    required:
+      - name
+      - password
+      - role
+  RegisterUserResponse:
+    title: RegisterUserResponse
+    x-stoplight:
+      id: qrywui66hjirw
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64

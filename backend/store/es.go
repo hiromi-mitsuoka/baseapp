@@ -21,8 +21,8 @@ func NewES(ctx context.Context, cfg *config.Config) (*ES, *esapi.Response, error
 			// https://www.elastic.co/guide/en/elasticsearch/client/go-api/current/connecting.html#connecting-without-security
 			// NOTE: Use http for connecting without security enabled
 			// TODO: http://localhost:9200で接続したい．現状「docker network inspect baseapp_default」or 「curl http://localhost:9201/_nodes/http\?pretty\=true」でIPアドレスを確認している
-			fmt.Sprintf("http://172.29.0.5:%d", cfg.ESPort01),
-			fmt.Sprintf("http://172.29.0.5:%d", cfg.ESPort02),
+			fmt.Sprintf("http://172.29.0.6:%d", cfg.ESPort01),
+			fmt.Sprintf("http://172.29.0.6:%d", cfg.ESPort02),
 		},
 		// https://github.com/elastic/go-elasticsearch#usage
 		// TODO: To configure other HTTP settings

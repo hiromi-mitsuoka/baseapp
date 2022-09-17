@@ -11,6 +11,7 @@ import (
 
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/go-playground/validator/v10"
 	"github.com/hiromi-mitsuoka/baseapp/auth"
 	"github.com/hiromi-mitsuoka/baseapp/clock"
@@ -36,10 +37,25 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	//       ルーティングのみの機能を提供する,net/httpパッケージの型定義に準拠するgo-chi/chiパッケージを利用
 	mux := chi.NewRouter()
 
+	// CORS
+	// https://github.com/go-chi/cors#usage
+	// https://qiita.com/taito-ITO/items/f4fdfa6a031b91beb080
+	mux.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:18080"}, // swagger
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
+
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		// NOTE: 静的解析のエラーを回避するため明示的に戻り値を捨てている
 		_, _ = w.Write([]byte(`{"status": "OK"}`))
+	})
+	mux.Get("/cors", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("cors"))
 	})
 
 	v := validator.New()
@@ -67,6 +83,7 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	defer res.Body.Close()
 	log.Println(res)
 
+	// TODO: 実装の見通したったら，別ファイルに移動
 	// temp code
 	// https://www.elastic.co/jp/blog/the-go-client-for-elasticsearch-introduction
 	// indexing
