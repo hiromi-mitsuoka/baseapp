@@ -1,10 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 	"github.com/hiromi-mitsuoka/baseapp/auth"
@@ -54,13 +59,42 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	}
 
 	// Elasticsearch
-	_, res, err := store.NewES(ctx, cfg)
+	escli, res, err := store.NewES(ctx, cfg)
 	if err != nil {
 		return nil, cleanup, err
 	}
 	// TODO: res.Body.Close() もmysql同様にcleanupを用意するべきか検討
 	defer res.Body.Close()
 	log.Println(res)
+
+	// temp code
+	// https://www.elastic.co/jp/blog/the-go-client-for-elasticsearch-introduction
+	// indexing
+	req := esapi.IndexRequest{
+		Index:      "user-index",
+		DocumentID: "1",
+		Body:       strings.NewReader(`{"name":"test-user"}`),
+	}
+	req.Do(ctx, escli.Cli)
+
+	// search
+	// https://developer.okta.com/blog/2021/04/23/elasticsearch-go-developers-guide
+	var buffer bytes.Buffer
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"match": map[string]interface{}{
+				"name": "test",
+			},
+		},
+	}
+	json.NewEncoder(&buffer).Encode(query)
+	response, err := escli.Cli.Search(
+		escli.Cli.Search.WithIndex("user-index"),
+		escli.Cli.Search.WithBody(&buffer),
+	)
+	var result map[string]interface{}
+	json.NewDecoder(response.Body).Decode(&result)
+	fmt.Println("====", result)
 
 	// JWT
 	jwter, err := auth.NewJWTer(rcli, clocker)

@@ -81,12 +81,12 @@ curl -XGET "http://localhost:9201/_aliases" | jq
 
 #### indexのドキュメント数を取得
 ```terminal
-curl -XGET "http://localhost:9201/_cat/count/<index_name></index_name>"
+curl -XGET "http://localhost:9201/_cat/count/<index_name>"
 ```
 
 #### mappingの確認
 ```terminal
-curl -XGET "http://localhost:9201/<index-name>/_mapping"
+curl -XGET "http://localhost:9201/<index-name>/_mapping?pretty"
 ```
 
 **参考記事**
