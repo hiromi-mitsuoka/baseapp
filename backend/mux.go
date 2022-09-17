@@ -76,6 +76,12 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 		Body:       strings.NewReader(`{"name":"test-user"}`),
 	}
 	req.Do(ctx, escli.Cli)
+	req = esapi.IndexRequest{
+		Index:      "user-index",
+		DocumentID: "2",
+		Body:       strings.NewReader(`{"name":"test-userrrr"}`),
+	}
+	req.Do(ctx, escli.Cli)
 
 	// search
 	// https://developer.okta.com/blog/2021/04/23/elasticsearch-go-developers-guide
@@ -95,6 +101,10 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	var result map[string]interface{}
 	json.NewDecoder(response.Body).Decode(&result)
 	fmt.Println("====", result)
+	for _, hit := range result["hits"].(map[string]interface{})["hits"].([]interface{}) {
+		craft := hit.(map[string]interface{})["_source"].(map[string]interface{})
+		fmt.Println("-----", craft)
+	}
 
 	// JWT
 	jwter, err := auth.NewJWTer(rcli, clocker)
