@@ -41,6 +41,7 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	// https://github.com/go-chi/cors#usage
 	// https://qiita.com/taito-ITO/items/f4fdfa6a031b91beb080
 	mux.Use(cors.Handler(cors.Options{
+		// NOTE: backend-nginxは要らない模様
 		AllowedOrigins:   []string{"http://localhost:18080"}, // swagger
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
@@ -83,6 +84,7 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	defer res.Body.Close()
 	log.Println(res)
 
+	// TODO: esが完全に立ち上がる前に，goがconnectionを張ろうとして，1回目だけエラーになるのを防ぐ
 	// TODO: 実装の見通したったら，別ファイルに移動
 	// temp code
 	// https://www.elastic.co/jp/blog/the-go-client-for-elasticsearch-introduction

@@ -1,6 +1,4 @@
-# backend
-
-## エンドポイント
+# エンドポイント
 
 | HTTPメソッド | パス | 概要 | アクセストークンの有無 |
 | :--- | :--- | :--- | :--- |
@@ -13,23 +11,32 @@
 |  |  |  |  |
 | GET | /admin | 管理者ユーザーのみアクセス | Yes |
 
-## 動作確認コマンド
+# 動作確認コマンド
+
+## api （backend-nginxの81番経由）
+
+### health-check
+```terminal
+curl localhost:81/health
+
+// {"status": "OK"}
+```
 
 ### ユーザー登録してアクセストークン発行
 
 管理者
 ```terminal
-curl -X POST localhost:18000/register -d '{"name": "admin_user", "password": "test", "role": "admin"}'
+curl -X POST localhost:81/register -d '{"name": "admin_user", "password": "test", "role": "admin"}'
 ```
 
 一般ユーザー
 ```terminal
-curl -X POST localhost:18000/register -d '{"name": "normal_user", "password": "testtest", "role": "user"}'
+curl -X POST localhost:81/register -d '{"name": "normal_user", "password": "testtest", "role": "user"}'
 ```
 
 ### ログイン
 ```terminal
-curl -XPOST localhost:18000/login -d '{"user_name": "admin_user", "password": "test"}'
+curl -XPOST localhost:81/login -d '{"user_name": "admin_user", "password": "test"}'
 
 // {"access_token":"eyJh......................
 // ユーザー毎・発行毎にaccess_tokenが異なる
@@ -39,52 +46,54 @@ curl -XPOST localhost:18000/login -d '{"user_name": "admin_user", "password": "t
 
 ```terminal
 export TOKEN=eyJh......................
-curl -XPOST -H "Authorization: Bearer $TOKEN" localhost:18000/tasks -d @./handler/testdata/add_task/ok_req.json.golden
+curl -XPOST -H "Authorization: Bearer $TOKEN" localhost:81/tasks -d @./handler/testdata/add_task/ok_req.json.golden
 ```
 
 ### ユーザー自身のタスク取得
 ```terminal
 export TOKEN=eyJh......................
-curl -XGET -H "Authorization: Bearer $TOKEN" localhost:18000/tasks | jq
+curl -XGET -H "Authorization: Bearer $TOKEN" localhost:81/tasks | jq
 ```
 
 ### タスクの編集（id=1）
 ```terminal
 export TOKEN=eyJh......................
-curl -XPUT -H "Authorization: Bearer $TOKEN" localhost:18000/tasks/1 -d @./handler/testdata/update_task/ok_req.json.golden
+curl -XPUT -H "Authorization: Bearer $TOKEN" localhost:81/tasks/1 -d @./handler/testdata/update_task/ok_req.json.golden
 ```
 
 ### タスクの削除（id=1）
 ```terminal
 export TOKEN=eyJh......................
-curl -XDELETE -H "Authorization: Bearer $TOKEN" localhost:18000/tasks/1
+curl -XDELETE -H "Authorization: Bearer $TOKEN" localhost:81/tasks/1
 ```
 
 ### 管理者アクセス
 ```terminal
-curl -XGET -H "Authorization: Bearer $TOKEN" localhost:18000/admin
+curl -XGET -H "Authorization: Bearer $TOKEN" localhost:81/admin
 
 // {"message": "admin only"}
 ```
 
-### ElasticSearch
 
-#### 基本情報取得
+## ElasticSearch
+
+
+### 基本情報取得
 ```terminal
 curl -XGET "http://localhost:9201"
 ```
 
-#### indexの一覧取得
+### indexの一覧取得
 ```terminal
 curl -XGET "http://localhost:9201/_aliases" | jq
 ```
 
-#### indexのドキュメント数を取得
+### indexのドキュメント数を取得
 ```terminal
 curl -XGET "http://localhost:9201/_cat/count/<index_name>"
 ```
 
-#### mappingの確認
+### mappingの確認
 ```terminal
 curl -XGET "http://localhost:9201/<index-name>/_mapping?pretty"
 ```
@@ -92,9 +101,9 @@ curl -XGET "http://localhost:9201/<index-name>/_mapping?pretty"
 **参考記事**
 [【Elasticsearch】よく使うコマンド一覧](https://qiita.com/mug-cup/items/ba5dd0a14838e83e69ac)
 
-### docker
+## docker
 
-#### docker環境内のnetwork確認
+### docker環境内のnetwork確認
 ```terminal
 docker network inspect baseapp_default
 ```

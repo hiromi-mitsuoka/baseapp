@@ -2,12 +2,25 @@
 # NOTE: esでmem_limitを指定したいため，v3.8→v2.2へ移行した
 version: "2.2"
 services:
-# nginx
+# frontend-nginx
 # frontend
 # frontend-build
+  backend-nginx:
+    build:
+      context: ./nginx/backend
+    container_name: baseapp-backend-nginx
+    ports:
+      - 81:80
+    depends_on:
+      - api
+
   api:
     build:
       context: ./backend
+    # https://gotohayato.com/content/533/
+    # TODO: esが立ち上がるのが遅いため順序を指定したが，完全には待ってくれず，初回失敗する
+    depends_on:
+     - es
     environment:
       BASEAPP_ENV: dev
       PORT: 8000
@@ -93,8 +106,6 @@ services:
     # TODO: DockerImageを切り分け，analyzerを設定する
     image: docker.elastic.co/elasticsearch/elasticsearch:8.4.1
     container_name: baseapp-es
-    depends_on:
-      - api
     ports:
       # NOTE: curlでの接続は9201, コンテナ間の接続は9200
       - ${ES_PORT:-9201}:9200
