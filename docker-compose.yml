@@ -40,6 +40,7 @@ services:
       - ./backend:/app
     working_dir: /app
   swagger-ui:
+    # https://qiita.com/A-Kira/items/3d17396c7cc98873e29d
     image: swaggerapi/swagger-ui
     container_name: baseapp-swagger-ui
     depends_on:
