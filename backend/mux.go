@@ -113,7 +113,7 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 		},
 	}
 	json.NewEncoder(&buffer).Encode(query)
-	response, err := escli.Cli.Search(
+	response, _ := escli.Cli.Search(
 		escli.Cli.Search.WithIndex("user-index"),
 		escli.Cli.Search.WithBody(&buffer),
 	)

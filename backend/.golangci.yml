@@ -20,5 +20,6 @@ linters:
     - gofmt
     - govet
     - misspell
+    # https://blog.cybozu.io/entry/2021/02/26/081013
     - staticcheck
     - whitespace

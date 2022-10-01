@@ -28,7 +28,7 @@ func RespondJSON(ctx context.Context, w http.ResponseWriter, body any, status in
 		// データを別の形式に変換する（データ圧縮や暗号化も含む）ことをエンコード（encode），エンコードしたデータを元に戻すことをデコード（decode）
 		// https://zenn.dev/hsaki/articles/go-convert-json-struct
 		// エンコーディングはインメモリ表現からバイト列表現への変換のこと．Go構造体からjsonを生成 and 平文から暗号文を生成
-		// エンコーディングと同じ意味の言葉として、シリアライゼーション(serialization)・マーシャリング(marshalling)
+		// エンコーディングと同じ意味の言葉として、シリアライゼーション(serialization)・マーシャリング(marshaling)
 		// https://zenn.dev/hsaki/articles/go-convert-json-struct#encoder%E3%81%AE%E5%88%A9%E7%94%A8
 		// json.NewEncoder関数から、引数で指定された場所にjsonを出力するエンコーダーを作成
 		// Encode(Go構造体)メソッドを実行してエンコード

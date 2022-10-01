@@ -11,3 +11,7 @@ test:
 # https://qiita.com/yaegashi/items/d1fd9f7d0c75b2bb7446
 generate:
 	go generate ./...
+
+.PHONY: lint
+lint:
+	golangci-lint run
