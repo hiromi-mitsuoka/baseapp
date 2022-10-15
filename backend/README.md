@@ -10,6 +10,7 @@
 | DELETE | /tasks/{taskID} | トークンに紐づくユーザーのタスク削除 | Yes |
 |  |  |  |  |
 | GET | /admin | 管理者ユーザーのみアクセス | Yes |
+| GET | /admin/tasks | 全タスク取得 | Yes |
 
 # 動作確認コマンド
 
@@ -74,6 +75,11 @@ curl -XGET -H "Authorization: Bearer $TOKEN" localhost:81/admin
 // {"message": "admin only"}
 ```
 
+### 管理者権限で，全タスクを取得
+```terminal
+export TOKEN=eyJh......................
+curl -XGET -H "Authorization: Bearer $TOKEN" localhost:81/admin/tasks | jq
+```
 
 ## ElasticSearch
 

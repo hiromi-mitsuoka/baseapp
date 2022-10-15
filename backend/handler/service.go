@@ -40,4 +40,9 @@ type LoginService interface {
 	Login(ctx context.Context, name, pw string) (string, error)
 }
 
+// admin
+type AdminListTaskService interface {
+	AdminListTask(ctx context.Context) (entity.Tasks, error)
+}
+
 // TODO: このファイルはなぜservice.goという命名??

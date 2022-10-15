@@ -2,10 +2,10 @@ swagger: '2.0'
 info:
   version: 1.0.0
   title: Baseapp
-host: 'localhost:18000'
+host: 'localhost:81'
 securityDefinitions:
   Authorization:
-    name: JWT Authorization
+    name: Authorization
     type: apiKey
     in: header
 paths:
@@ -19,7 +19,11 @@ paths:
       responses:
         '200':
           description: OK
-      security: []
+          schema:
+            $ref: '#/definitions/ListTask'
+      security:
+        - Authorization: []
+      summary: List Task
   /register:
     post:
       summary: Register user
@@ -38,6 +42,20 @@ paths:
       tags:
         - User
     parameters: []
+  /admin/tasks:
+    get:
+      summary: Your GET endpoint
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ListTask'
+      operationId: get-tasks-by-admin
+      tags:
+        - Admin
+      description: get-tasks-by-admin
+      security:
+        - Authorization: []
 definitions:
   ListTask:
     title: ListTask

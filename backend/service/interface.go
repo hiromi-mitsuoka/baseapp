@@ -37,3 +37,8 @@ type UserGetter interface {
 type TokenGenerator interface {
 	GenerateToken(ctx context.Context, u entity.User) ([]byte, error)
 }
+
+// admin
+type AdminTaskLister interface {
+	AdminListTask(ctx context.Context, db store.Queryer) (entity.Tasks, error)
+}

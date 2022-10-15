@@ -179,6 +179,10 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 		})
 	})
 
+	// /admin
+	alt := &handler.AdminListTask{
+		Service: &service.AdminListTask{DB: db, Repo: &r},
+	}
 	mux.Route("/admin", func(r chi.Router) {
 		// NOTE: ミドルウェアの適用順序注意
 		r.Use(handler.AuthMiddleware(jwter), handler.AdminMiddleware)
@@ -186,6 +190,7 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			_, _ = w.Write([]byte(`{"message": "admin only"}`))
 		})
+		r.Get("/tasks", alt.ServeHTTP)
 	})
 
 	return mux, cleanup, nil
