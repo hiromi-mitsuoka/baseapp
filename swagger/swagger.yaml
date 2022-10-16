@@ -56,14 +56,24 @@ paths:
       description: get-tasks-by-admin
       security:
         - Authorization: []
+  /es/tasks:
+    get:
+      summary: List task from elasticsearch
+      tags:
+        - ES
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ListTaskResponse'
+      operationId: get-tasks-from-elasticsearch
+      description: ''
 definitions:
-  ListTask:
+  ListTaskResponse:
     title: ListTask
     x-stoplight:
       id: jyl33gfknjit2
-    type: array
-    items:
-      $ref: '#/definitions/Task'
+    type: string
   Task:
     title: Task
     x-stoplight:
@@ -109,3 +119,14 @@ definitions:
       id:
         type: integer
         format: int64
+  ListTask:
+    title: ListTask
+    x-stoplight:
+      id: 2gik6icomsm88
+    type: object
+    properties:
+      id:
+        type: array
+        items:
+          $ref: '#/definitions/Task'
+responses: {}
