@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -102,29 +99,6 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 	}
 	req.Do(ctx, escli.Cli)
 
-	// search
-	// https://developer.okta.com/blog/2021/04/23/elasticsearch-go-developers-guide
-	var buffer bytes.Buffer
-	query := map[string]interface{}{
-		"query": map[string]interface{}{
-			"match": map[string]interface{}{
-				"name": "test",
-			},
-		},
-	}
-	json.NewEncoder(&buffer).Encode(query)
-	response, _ := escli.Cli.Search(
-		escli.Cli.Search.WithIndex("user-index"),
-		escli.Cli.Search.WithBody(&buffer),
-	)
-	var result map[string]interface{}
-	json.NewDecoder(response.Body).Decode(&result)
-	fmt.Println("====", result)
-	for _, hit := range result["hits"].(map[string]interface{})["hits"].([]interface{}) {
-		craft := hit.(map[string]interface{})["_source"].(map[string]interface{})
-		fmt.Println("-----", craft)
-	}
-
 	// JWT
 	jwter, err := auth.NewJWTer(rcli, clocker)
 	if err != nil {
@@ -191,6 +165,15 @@ func NewMux(ctx context.Context, cfg *config.Config) (http.Handler, func(), erro
 			_, _ = w.Write([]byte(`{"message": "admin only"}`))
 		})
 		r.Get("/tasks", alt.ServeHTTP)
+	})
+
+	// /es
+	elt := &handler.EsListTask{
+		Service: &service.EsListTask{ES: *escli, Repo: &r},
+	}
+	mux.Route("/es", func(r chi.Router) {
+		// NOTE: ミドルウェアは現状使用しない
+		r.Get("/tasks", elt.ServeHTTP)
 	})
 
 	return mux, cleanup, nil

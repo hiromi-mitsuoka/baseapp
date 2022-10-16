@@ -11,6 +11,8 @@
 |  |  |  |  |
 | GET | /admin | 管理者ユーザーのみアクセス | Yes |
 | GET | /admin/tasks | 全タスク取得 | Yes |
+|  |  |  |  |
+| GET | /es/tasks | Elasticsearchに対して，全タスク取得 | No |
 
 # 動作確認コマンド
 
@@ -79,6 +81,11 @@ curl -XGET -H "Authorization: Bearer $TOKEN" localhost:81/admin
 ```terminal
 export TOKEN=eyJh......................
 curl -XGET -H "Authorization: Bearer $TOKEN" localhost:81/admin/tasks | jq
+```
+
+### ESから，全タスクを取得
+```terminal
+curl -XGET localhost:81/es/tasks | jq
 ```
 
 ## ElasticSearch

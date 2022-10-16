@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/hiromi-mitsuoka/baseapp/entity"
 )
 
@@ -43,6 +44,11 @@ type LoginService interface {
 // admin
 type AdminListTaskService interface {
 	AdminListTask(ctx context.Context) (entity.Tasks, error)
+}
+
+// es
+type EsListTaskService interface {
+	EsListTask(ctx context.Context) (*esapi.Response, error)
 }
 
 // TODO: このファイルはなぜservice.goという命名??

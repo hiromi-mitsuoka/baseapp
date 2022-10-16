@@ -1,7 +1,9 @@
 package store
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -15,6 +17,7 @@ type ES struct {
 	Idx *esapi.Indices
 }
 
+// TODO: このファイルをesにクエリを投げるファイルにして，ES構築はrepository.goに移すか検討する
 func NewES(ctx context.Context, cfg *config.Config) (*ES, *esapi.Response, error) {
 	escfg := elasticsearch.Config{
 		Addresses: []string{
@@ -94,3 +97,24 @@ var user_mapping = `
 }`
 
 var task_mapping = ``
+
+func (r *Repository) EsListTask(
+	ctx context.Context, escli ES,
+) (*esapi.Response, error) {
+	// search
+	// https://developer.okta.com/blog/2021/04/23/elasticsearch-go-developers-guide
+	var buffer bytes.Buffer
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"match": map[string]interface{}{
+				"name": "test",
+			},
+		},
+	}
+	json.NewEncoder(&buffer).Encode(query)
+	response, _ := escli.Cli.Search(
+		escli.Cli.Search.WithIndex("user-index"),
+		escli.Cli.Search.WithBody(&buffer),
+	)
+	return response, nil
+}

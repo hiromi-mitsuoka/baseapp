@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/hiromi-mitsuoka/baseapp/entity"
 	"github.com/hiromi-mitsuoka/baseapp/store"
 )
@@ -41,4 +42,9 @@ type TokenGenerator interface {
 // admin
 type AdminTaskLister interface {
 	AdminListTask(ctx context.Context, db store.Queryer) (entity.Tasks, error)
+}
+
+// es
+type EsTaskLister interface {
+	EsListTask(ctx context.Context, es store.ES) (*esapi.Response, error)
 }
