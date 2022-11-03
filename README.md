@@ -21,5 +21,6 @@
 
 ## 意欲的に取り組んだ・工夫した点（2022年10月時点）
 
-- 実務を意識したSwagger UIコンテナの導入
+- 実務を意識したSwagger UI, nginx（現状backendのみ）コンテナの導入
 - 書籍で勉強したRedisの導入を参考に，同じようなファイル構造でElasticsearchを導入
+- middlewareにCORSの設定追加
