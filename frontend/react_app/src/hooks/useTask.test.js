@@ -22,4 +22,58 @@ describe("[Hooksテスト] useApp test", () => {
       expect(result.current[0].addInputValue).toBe(expectValue);
     });
   });
+
+  describe("[関数テスト] handleAddTask", () => {
+    // 予測値
+    let expectTaskList = [];
+    // 引数
+    let eventObject = {
+      target: {
+        value: "test",
+      },
+      key: "Enter",
+    };
+    /**
+     * beforeEach
+     * test関数が実行される前に毎回実行する
+     */
+    beforeEach(() => {
+      // 引数の初期化
+      eventObject = {
+        target: {
+          value: "test",
+        },
+        key: "Enter",
+      };
+    });
+
+    test("[正常系] taskList, uniqueIdが更新されること, addInputValueがリセットされること", () => {
+      // 予測値
+      const expectTaskTitle = "Task3";
+      expectTaskList = INIT_TASK_LIST.concat({
+        id: 3,
+        title: expectTaskTitle,
+      });
+      // 引数
+      eventObject.target.value = expectTaskTitle;
+
+      // hooks呼び出し
+      const { result } = renderHook(() => useTask());
+      expect(result.current[0].addInputValue).toBe("");
+      // hooks関数の実行（addInputValueを更新）
+      act(() => result.current[1].onChangeAddInputValue(eventObject));
+      expect(result.current[0].addInputValue).toBe(expectTaskTitle);
+
+      // hooks関数の実行: handleAddTaskの実行
+      act(() => result.current[1].handleAddTask(eventObject));
+      // 表示用TaskListが予想通り更新されたこと
+      expect(result.current[0].showTaskList).toEqual(expectTaskList);
+      // 入力値（addInputValue）がリセットされたこと
+      expect(result.current[0].addInputValue).toBe("");
+    });
+
+    // test("[正常系] エンターキーを押していない場合，処理が発生しないこと", () => {
+
+    // });
+  });
 });
