@@ -107,13 +107,13 @@ describe("[Hooksテスト] useApp test", () => {
     // });
 
     describe("[関数テスト] handleDeleteTask", () => {
-      // 予測値
-      let expectTaskList = [];
+      // // 予測値
+      // let expectTaskList = [];
 
-      beforeEach(() => {
-        // 予測値を初期化
-        expectTaskList = [];
-      });
+      // beforeEach(() => {
+      //   // 予測値を初期化
+      //   expectTaskList = [];
+      // });
 
       // test("[正常系] taskが削除されること", () => {
 
