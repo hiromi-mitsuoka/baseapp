@@ -72,7 +72,69 @@ describe("[Hooksテスト] useApp test", () => {
       expect(result.current[0].addInputValue).toBe("");
     });
 
-    // test("[正常系] エンターキーを押していない場合，処理が発生しないこと", () => {
+    test("[正常系] エンターキーを押していない場合，処理が発生しないこと", () => {
+      // 予測値
+      const expectTaskTitle = "Task4"
+      expectTaskList = INIT_TASK_LIST.concat({
+        id: 3,
+        title: expectTaskTitle,
+      });
+      // 引数
+      eventObject.target.value = expectTaskTitle;
+      eventObject.key = ""; // NOTE: エンターキーを押さない
+
+      // hooks呼び出し
+      const { result } = renderHook(() => useTask());
+      expect(result.current[0].addInputValue).toBe("");
+      // hooks関数の実行（addInputValueを更新）
+      act(() => result.current[1].onChangeAddInputValue(eventObject));
+      expect(result.current[0].addInputValue).toBe(expectTaskTitle);
+
+      // hooks関数の実行: handleAddTaskの実行
+      act(() => result.current[1].handleAddTask(eventObject))
+      // 表示用TaskListが予想通り更新されないこと
+      expect(result.current[0].showTaskList).not.toEqual(expectTaskList);
+      // 入力値（addInputValue）がリセットされない
+      expect(result.current[0].addInputValue).not.toBe("");
+    });
+
+    // test("[正常系] 入力値がない場合，処理が発生しないこと", () => {
+
+    // });
+
+    // test("[正常系] 検索キーワードがある場合", () => {
+
+    // });
+
+    describe("[関数テスト] handleDeleteTask", () => {
+      // 予測値
+      let expectTaskList = [];
+
+      beforeEach(() => {
+        // 予測値を初期化
+        expectTaskList = [];
+      });
+
+      // test("[正常系] taskが削除されること", () => {
+
+      // });
+
+      // test("[正常系] confirmでキャンセルをクリックした場合, taskが削除されないこと", () => {
+
+      // });
+
+      // test("[正常系] 検索キーワードがある場合", () => {
+
+      // });
+    });
+  });
+
+  describe("[関数テスト] handleSearchTask", () => {
+    // test("[正常系] 検索ワードがある場合，検索された結果が反映される", () => {
+
+    // });
+
+    // test("[正常系] 検索ワードがない場合, 元のTaskListが反映される", () => {
 
     // });
   });
